@@ -15,46 +15,42 @@ class Phone(Field):
     def __init__(self, value):
         if len(value) == 10 and value.isnumeric():
             super().__init__(value)
+        else:
+            raise TypeError("Phone number must be 10 digits")
 
 class Record:
     def __init__(self, name: str):
         self.name = Name(name)
         self.phones = []
 
-    """Додавання номера"""
-    def add_phone(self, phone: str):
-        if phone not in [p.value for p in self.phones] and len(phone) == 10 and phone.isnumeric():
-            self.phones.append(Phone(phone))
-        else:
-            raise ValueError('Phone already added or wrong phone number')
-
-    """Видалення номера"""
-    def remove_phone(self, phone: str):
-        if phone in [p.value for p in self.phones]:
-            for p in self.phones:
-                if p.value == phone:
-                    self.phones.remove(p)
-                    break
-        else:
-            raise ValueError('No such phone')
-
-    """Зміна номеру"""
-    def edit_phone(self, phone: str, new_phone: str):
-        if phone in [p.value for p in self.phones] and len(new_phone) == 10 and new_phone.isnumeric():
-            for p in self.phones:
-                if p.value == phone:
-                    p.value = new_phone
-                    break
-        else:
-            raise ValueError("Phone number not found or check second parameter.")
-
-    """Зміна номеру"""
+    """Знаходження номеру"""
     def find_phone(self, phone: str):
         for p in self.phones:
             if p.value == phone:
                 return p
         return None
 
+    """Додавання номера"""
+    def add_phone(self, phone: str):
+        if not self.find_phone(phone):
+            self.phones.append(Phone(phone))
+        else:
+            raise ValueError('Phone already added')
+
+    """Видалення номера"""
+    def remove_phone(self, phone: str):
+        if self.find_phone(phone):
+            self.phones.remove(self.find_phone(phone))
+        else:
+            raise ValueError('No such phone')
+
+    """Зміна номеру"""
+    def edit_phone(self, phone: str, new_phone: str):
+        if self.find_phone(phone):
+            self.phones.remove(self.find_phone(phone))
+            self.phones.append(Phone(new_phone))
+        else:
+            raise ValueError('No such phone')
 
     def __str__(self):
         return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)};"
@@ -63,7 +59,7 @@ class AddressBook(UserDict):
 
     """Додавання нового запису до книги"""
     def add_record(self, record: Record):
-        if record.name.value not in [p.name.value for p in self.data.values()]:
+        if record.name.value not in self.data:
             self.data[record.name.value] = record
         else:
             raise ValueError('Record with the same name already added')
@@ -73,7 +69,7 @@ class AddressBook(UserDict):
         if self.data:
             return self.data[name]
         else:
-            raise KeyError('No such record')
+            return None
 
     """Видалення рекорду"""
     def delete(self, name: str):
