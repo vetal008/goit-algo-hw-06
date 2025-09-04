@@ -16,7 +16,7 @@ class Phone(Field):
         if len(value) == 10 and value.isnumeric():
             super().__init__(value)
         else:
-            raise TypeError("Phone number must be 10 digits")
+            raise ValueError("Phone number must be 10 digits")
 
 class Record:
     def __init__(self, name: str):
@@ -47,8 +47,8 @@ class Record:
     """Зміна номеру"""
     def edit_phone(self, phone: str, new_phone: str):
         if self.find_phone(phone):
-            self.phones.remove(self.find_phone(phone))
-            self.phones.append(Phone(new_phone))
+            self.add_phone(new_phone)
+            self.remove_phone(phone)
         else:
             raise ValueError('No such phone')
 
@@ -67,7 +67,7 @@ class AddressBook(UserDict):
     """Знаходження рекорду за ім'ям"""
     def find(self, name: str):
         if self.data:
-            return self.data[name]
+            return self.data.get(name)
         else:
             return None
 
